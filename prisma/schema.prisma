@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum size {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum age {
+  YOUNG
+  ADULT
+  OLD
+}
+
+enum energyLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum levelOfIndependence {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum environment {
+  APARTMENT
+  HOUSE
+  GARDEN
+}
+
+model Pet {
+  id String @id @default(uuid())
+
+  name                  String
+  about                 String
+  size                  size                @default(SMALL)
+  age                   age                 @default(YOUNG)
+  energy_level          energyLevel         @default(LOW)
+  level_of_independence levelOfIndependence @default(LOW)
+  environment           environment         @default(APARTMENT)
+  petPhotos             PetPhotos[]
+  petRequirements       PetRequirements[]
+
+  org    Org    @relation(fields: [org_id], references: [id])
+  org_id String
+
+  @@map("pets")
+}
+
+model PetPhotos {
+  id        String @id @default(uuid())
+  photo_url String
+
+  pet    Pet    @relation(fields: [pet_id], references: [id])
+  pet_id String
+
+  @@map("pet_photos")
+}
+
+model PetRequirements {
+  id          String @id @default(uuid())
+  description String
+
+  pet    Pet    @relation(fields: [pet_id], references: [id])
+  pet_id String
+
+  @@map("pet_requirements")
+}
+
+model Org {
+  id            String  @id @default(uuid())
+  address       Address @relation(fields: [address_id], references: [id])
+  address_id    String
+  responsible   String
+  email         String  @unique
+  password_hash String  @unique
+  phone         String
+  pets          Pet[]
+
+  @@map("orgs")
+}
+
+model Address {
+  id       String @id @default(uuid())
+  street   String
+  city     String
+  state    String
+  zip_code String
+  Org      Org[]
+
+  @@map("address")
+}
